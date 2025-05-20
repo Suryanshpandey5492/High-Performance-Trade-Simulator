@@ -26,6 +26,7 @@ cd High-Performance-Trade-Simulator
 ```
 
 2. Setup Python Environment
+
 Make sure you have Python 3.7+ installed.
 
 Install dependencies via pip:
