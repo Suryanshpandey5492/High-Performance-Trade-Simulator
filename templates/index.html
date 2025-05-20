@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trade Simulator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>High-Performance Trade Simulator</h1>
+            <p>Real-time market data analysis for cryptocurrency trading</p>
+        </header>
+        
+        <main>
+            <div class="panels">
+                <!-- Left Panel: Input Parameters -->
+                <div class="panel input-panel">
+                    <h2>Input Parameters</h2>
+                    <form id="trade-form">
+                        <div class="form-group">
+                            <label for="exchange">Exchange:</label>
+                            <select id="exchange" name="exchange" required>
+                                <option value="">Select Exchange</option>
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="symbol">Spot Asset:</label>
+                            <select id="symbol" name="symbol" required>
+                                <option value="">Select Asset</option>
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="order-type">Order Type:</label>
+                            <select id="order-type" name="order-type" required>
+                                <option value="market">Market</option>
+                                <!-- More order types can be added later -->
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="quantity">Quantity (USD):</label>
+                            <input type="number" id="quantity" name="quantity" min="1" value="100" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="volatility">Volatility (%):</label>
+                            <input type="number" id="volatility" name="volatility" min="0.1" max="100" step="0.1" value="2.5" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="fee-tier">Fee Tier:</label>
+                            <select id="fee-tier" name="fee-tier" required>
+                                <option value="">Select Fee Tier</option>
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <button type="submit" id="estimate-button">Estimate Costs</button>
+                        </div>
+                        <div id="error-message" style="display:none; color: red; margin-top: 10px; white-space: pre-wrap; background: #ffe6e6; border: 1px solid red; padding: 10px; border-radius: 4px;"></div>
+
+                    </form>
+                </div>
+                
+                <!-- Right Panel: Output Parameters -->
+                <div class="panel output-panel">
+                    <h2>Output Parameters</h2>
+                    <div id="output-container">
+                        <div class="output-group">
+                            <div class="output-item">
+                                <span class="output-label">Expected Slippage:</span>
+                                <span class="output-value" id="slippage">--</span>
+                            </div>
+                            
+                            <div class="output-item">
+                                <span class="output-label">Expected Fees:</span>
+                                <span class="output-value" id="fees">--</span>
+                            </div>
+                            
+                            <div class="output-item">
+                                <span class="output-label">Expected Market Impact:</span>
+                                <span class="output-value" id="market-impact">--</span>
+                            </div>
+                            
+                            <div class="output-item highlight">
+                                <span class="output-label">Net Cost:</span>
+                                <span class="output-value" id="net-cost">--</span>
+                            </div>
+                            
+                            <div class="output-item">
+                                <span class="output-label">Maker Proportion:</span>
+                                <span class="output-value" id="maker-proportion">--</span>
+                            </div>
+                            
+                            <div class="output-item">
+                                <span class="output-label">Taker Proportion:</span>
+                                <span class="output-value" id="taker-proportion">--</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="status-container">
+                        <div id="connection-status" class="status disconnected">
+                            <span class="status-dot"></span>
+                            <span class="status-text">Disconnected</span>
+                        </div>
+                        <div id="orderbook-status">
+                            <span class="status-label">Last Update: </span>
+                            <span class="status-value" id="last-update">--</span>
+                        </div>
+                    </div>
+
+                    <!-- Performance Analysis Section -->
+                    <div class="performance-panel">
+                        <h3>Performance Analysis</h3>
+                        <div class="latency-metrics">
+                            <div class="latency-item">
+                                <span class="latency-label">Data Processing Latency (ms):</span>
+                                <span class="latency-value" id="data-processing-latency">--</span>
+                            </div>
+                            <div class="latency-item">
+                                <span class="latency-label">WebSocket to Update Latency (ms):</span>
+                                <span class="latency-value" id="ws-update-latency">--</span>
+                            </div>
+                            <div class="latency-item">
+                                <span class="latency-label">UI Update Latency (ms):</span>
+                                <span class="latency-value" id="ui-update-latency">--</span>
+                            </div>
+                            <div class="latency-item highlight">
+                                <span class="latency-label">End-to-End Latency (ms):</span>
+                                <span class="latency-value" id="end-to-end-latency">--</span>
+                            </div>
+                        </div>
+
+                        <div class="latency-details">
+                            <button id="show-details-button">Show Detailed Metrics</button>
+                            <div id="latency-details-panel" style="display:none">
+                                <h4>Detailed Latency Metrics</h4>
+                                <table class="latency-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Metric</th>
+                                            <th>Avg</th>
+                                            <th>Min</th>
+                                            <th>Max</th>
+                                            <th>P95</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Data Processing</td>
+                                            <td id="processing-avg">--</td>
+                                            <td id="processing-min">--</td>
+                                            <td id="processing-max">--</td>
+                                            <td id="processing-p95">--</td>
+                                        </tr>
+                                        <tr>
+                                            <td>WebSocket to Update</td>
+                                            <td id="ws-update-avg">--</td>
+                                            <td id="ws-update-min">--</td>
+                                            <td id="ws-update-max">--</td>
+                                            <td id="ws-update-p95">--</td>
+                                        </tr>
+                                        <tr>
+                                            <td>End-to-End</td>
+                                            <td id="e2e-avg">--</td>
+                                            <td id="e2e-min">--</td>
+                                            <td id="e2e-max">--</td>
+                                            <td id="e2e-p95">--</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>Trade Simulator - Powered by Real-time Market Data</p>
+        </footer>
+    </div>
+    
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+</body>
+</html>
