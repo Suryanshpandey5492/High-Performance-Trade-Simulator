@@ -1,4 +1,4 @@
-OKX Crypto Derivatives Trading Cost Analyzer ⚙️📉
+High-Performance-Trade-Simulator ⚙️📉
 
 This Flask-based web application provides real-time analysis and estimation of trading costs, slippage, market impact, and fee structures for crypto derivatives on the OKX Exchange.
 
@@ -20,8 +20,10 @@ Follow the steps below to get the application running on your local machine.
 
 1. Clone the Repository
 
-git clone https://github.com/yourusername/okx-trading-cost-analyzer.git
-cd okx-trading-cost-analyzer
+```
+git clone https://github.com/Suryanshpandey5492/High-Performance-Trade-Simulator.git
+cd High-Performance-Trade-Simulator
+```
 
 2. Setup Python Environment
 Make sure you have Python 3.7+ installed.
