@@ -295,4 +295,4 @@ if __name__ == '__main__':
     ws_thread.start()
     
     # Start Flask app
-    app.run(debug=True, use_reloader=False)
+    app.run()
